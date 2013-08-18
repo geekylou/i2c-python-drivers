@@ -1,5 +1,11 @@
 package com.example.gpstest;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +24,7 @@ public class BluetoothInterfaceService extends Service {
 	public static final String PARAM_OUT_MSG = "GPS";
 	MyLocationListener mLocListener=null,mLocListener2=null;
 	LocationManager mLocManager;
+	IPSocketThread  mIPSocketThread = new IPSocketThread();
 	
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -54,12 +61,15 @@ public class BluetoothInterfaceService extends Service {
     	            0, mLocListener2);
         }    	
         
+        mIPSocketThread.start();
+        
     	// We want this service to continue running until it is explicitly
         // stopped, so return sticky.
         return START_STICKY;
     }
 	
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void onDestroy() {
         // Tell the user we stopped.
         Toast.makeText(this, "Bluetooth Service Stopped", Toast.LENGTH_SHORT).show();
@@ -74,6 +84,8 @@ public class BluetoothInterfaceService extends Service {
 			mLocManager.removeUpdates(mLocListener2);
 			mLocListener2 = null;
 		}
+		
+        mIPSocketThread.stop();
     }
     
 	class MyLocationListener implements LocationListener
@@ -114,6 +126,31 @@ public class BluetoothInterfaceService extends Service {
 		public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 			// TODO Auto-generated method stub
 			
+		}
+	}
+
+	class IPSocketThread extends Thread
+	{
+		boolean running = true;
+		public void run()
+		{
+			try {
+				ServerSocket mServerSocket = new ServerSocket(10025);
+				
+				while(running)
+				{
+					Socket mSocket = mServerSocket.accept();
+				
+					DataOutputStream out = new DataOutputStream(mSocket.getOutputStream());
+				
+					out.writeBytes("Test");
+					out.close();
+				}
+					
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 	
