@@ -477,3 +477,6 @@ java.lang.NullPointerException
 
 !ENTRY org.eclipse.ui 2 2 2013-08-18 15:31:05.358
 !MESSAGE Invalid property category path: ValidationPropertiesPage (bundle: org.eclipse.wst.xml.ui, propertyPage: org.eclipse.wst.xml.ui.propertyPage.project.validation)
+
+!ENTRY org.eclipse.ui 4 4 2013-08-18 20:18:08.282
+!MESSAGE Referenced part does not exist yet: org.eclipse.ui.views.ProblemView.

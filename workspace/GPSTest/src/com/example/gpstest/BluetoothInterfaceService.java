@@ -2,7 +2,6 @@ package com.example.gpstest;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -15,7 +14,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class BluetoothInterfaceService extends Service {
@@ -25,7 +23,7 @@ public class BluetoothInterfaceService extends Service {
 	MyLocationListener mLocListener=null,mLocListener2=null;
 	LocationManager mLocManager;
 	IPSocketThread  mIPSocketThread = new IPSocketThread();
-	
+	Object          mLock[]=new Object[1];
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
@@ -48,19 +46,19 @@ public class BluetoothInterfaceService extends Service {
 
         if (mLocListener == null)
         {
-        	mLocListener = new MyLocationListener("GPS");
+        	mLocListener = new MyLocationListener("GPS",mLock);
         
         	mLocManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
     	            0, mLocListener);
         }
         if (mLocListener2 == null)
         {
-        	mLocListener2 = new MyLocationListener("NET");        
+        	mLocListener2 = new MyLocationListener("NET",mLock);        
         
         	mLocManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,
     	            0, mLocListener2);
         }    	
-        
+        mLock[0] = mIPSocketThread.lock;
         mIPSocketThread.start();
         
     	// We want this service to continue running until it is explicitly
@@ -91,9 +89,10 @@ public class BluetoothInterfaceService extends Service {
 	class MyLocationListener implements LocationListener
 	{
 		String   header;
-		
-		public MyLocationListener(String header)
+		Object   locks[];
+		public MyLocationListener(String header,Object lock[])
 		{
+			this.locks = lock;
 			this.header = header;
 		}
 		@Override
@@ -131,6 +130,7 @@ public class BluetoothInterfaceService extends Service {
 
 	class IPSocketThread extends Thread
 	{
+		public Object lock = new Object();
 		boolean running = true;
 		public void run()
 		{
@@ -143,11 +143,18 @@ public class BluetoothInterfaceService extends Service {
 				
 					DataOutputStream out = new DataOutputStream(mSocket.getOutputStream());
 				
-					out.writeBytes("Test");
+					while(running)
+					{
+						lock.wait();
+						out.writeBytes("Test");
+					}
 					out.close();
 				}
 					
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
