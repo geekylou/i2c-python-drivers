@@ -25,7 +25,7 @@ public class MainActivity extends Activity {
 		TextView txtLOC = (TextView)findViewById(R.id.textView3);
 
 		mLocListener = new MyLocationListener(txtGPS,"GPS");
-		mLocListener2 = new MyLocationListener(txtLOC,"NET");
+		mLocListener2 = new MyLocationListener(txtGPS,"NET");
 		
 		Button butStart= (Button)findViewById(R.id.buttonStart);
 		butStart.setOnClickListener(new View.OnClickListener() {
