@@ -1,3 +1,0 @@
-INDEX VERSION 1.126+/home/louise/git/workspace/.metadata/.plugins/org.eclipse.jdt.core
-4008466342.index
-1630143559.index
