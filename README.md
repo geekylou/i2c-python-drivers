@@ -1,4 +1,4 @@
 i2c-python-drivers
 ==================
 
-Drivers for a few things implemented in user space with python.
+Exmample of using I2C and XMLRPC in python.
